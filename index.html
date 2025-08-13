@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ヤバい、なんてもんじゃない。 – YABA INPUT</title>
+<meta name="theme-color" content="#e0ea00" />
+<style>
+  :root{
+    --accent:#e0ea00; /* yellow-green band */
+    --bg:#ffffff;
+    --fg:#111;
+    --muted:#6b7280;
+    --chip-bg:#111;
+    --chip-fg:#fff;
+    --maxw:520px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    color:var(--fg);
+    background:var(--bg);
+    display:flex;
+    justify-content:center;
+  }
+  .frame{
+    width:100%;
+    max-width:var(--maxw);
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* top cloud */
+  .cloud{padding:16px 18px 12px; display:flex; flex-wrap:wrap; gap:8px 10px}
+  .chip{
+    background:var(--chip-bg);
+    color:var(--chip-fg);
+    font-weight:600;
+    font-size:14px;
+    line-height:1;
+    padding:10px 12px;
+    border-radius:999px;
+    box-shadow:0 1px 0 rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.06);
+    letter-spacing:.01em;
+  }
+
+  /* middle band */
+  .band{
+    background:var(--accent);
+    padding:22px 18px 12px;
+  }
+  .headline{
+    font-weight:800;
+    font-size: clamp(18px, 4.5vw, 24px);
+    letter-spacing:.02em;
+    margin:0 0 16px;
+  }
+  .inputRow{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:#fff;
+    border-radius:18px;
+    padding:10px 12px;
+    box-shadow:0 3px 10px rgba(0,0,0,.08);
+  }
+  .hash{
+    font-weight:800;
+    font-size:18px;
+  }
+  input[type="text"]{
+    border:none;
+    outline:none;
+    font-size:18px;
+    width:100%;
+  }
+  .btn{
+    appearance:none;
+    border:none;
+    padding:10px 14px;
+    border-radius:12px;
+    font-weight:700;
+    background:#111;
+    color:#fff;
+  }
+  .hint{
+    margin:10px 2px 0;
+    font-size:12px;
+    color:#374151;
+    opacity:.8;
+  }
+  .footerCloud{padding:12px 18px 28px; display:flex; flex-wrap:wrap; gap:8px 10px}
+
+  /* snackbar */
+  .snack{
+    position:fixed; inset:auto 0 16px 0;
+    display:flex; justify-content:center; pointer-events:none;
+  }
+  .snack > div{
+    background:#111; color:#fff; padding:10px 14px; border-radius:999px;
+    font-size:14px; opacity:0; transform:translateY(8px); transition:.25s;
+  }
+  .snack.show > div{opacity:1; transform:translateY(0)}
+</style>
+</head>
+<body>
+  <main class="frame" role="main">
+    <section class="cloud" id="topCloud" aria-live="polite"></section>
+
+    <section class="band" role="region" aria-label="投稿">
+      <h1 class="headline">ヤバいなんて、もんじゃない。</h1>
+
+      <form id="yabaForm" class="inputRow" autocomplete="off">
+        <span class="hash">#</span>
+        <input id="yabaInput" type="text" inputmode="text" maxlength="24" placeholder="＿＿＿＿＿＿＿＿" aria-label="ヤバ語を入力" />
+        <button class="btn" type="submit">投稿</button>
+      </form>
+      <p class="hint">※ 個人情報・誹謗中傷は投稿しないでください。端末内にのみ保存されます。</p>
+    </section>
+
+    <section class="footerCloud" id="bottomCloud" aria-live="polite"></section>
+  </main>
+
+  <div class="snack" id="snack" aria-hidden="true"><div>追加しました</div></div>
+
+<script>
+(() => {
+  const STORAGE_KEY = "yabaTags_v1";
+  const seedTop = ["#厳賛","#スポーツ","#作者としてサインしていいですか","#体重計に期待","#愛着を感じる"];
+  const seedBottom = ["#ダンプカーみてえだ","#詰まらせてもろた","#激臭","#事件","#鬼スッキリ","#お前かい","#デカすぎて写真撮った"];
+
+  // load
+  const load = () => {
+    try{
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      return {
+        top: Array.isArray(saved.top) ? saved.top : seedTop,
+        bottom: Array.isArray(saved.bottom) ? saved.bottom : seedBottom
+      };
+    }catch(e){
+      return { top: seedTop, bottom: seedBottom };
+    }
+  };
+
+  const state = load();
+
+  // render
+  const topCloud = document.getElementById("topCloud");
+  const bottomCloud = document.getElementById("bottomCloud");
+  function render(){
+    const fragTop = document.createDocumentFragment();
+    state.top.slice(0,24).forEach(t => fragTop.appendChild(chip(t)));
+    topCloud.innerHTML = ""; topCloud.appendChild(fragTop);
+
+    const fragBot = document.createDocumentFragment();
+    state.bottom.slice(0,24).forEach(t => fragBot.appendChild(chip(t)));
+    bottomCloud.innerHTML = ""; bottomCloud.appendChild(fragBot);
+  }
+  function chip(text){
+    const span = document.createElement("span");
+    span.className = "chip";
+    span.textContent = text.startsWith("#") ? text : `#${text}`;
+    return span;
+  }
+  function save(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  // basic sanitation & normalization
+  const normalize = (s) => {
+    s = (s || "").trim();
+    // strip leading hash(es)
+    s = s.replace(/^#+/, "");
+    // collapse spaces
+    s = s.replace(/\s+/g, "");
+    // block obviously unsafe strings (very light touch; keep client-only)
+    const banned = [/https?:\/\//i, /@/];
+    if (banned.some(rx => rx.test(s))) return "";
+    return s.slice(0, 24);
+  };
+
+  // form
+  const form = document.getElementById("yabaForm");
+  const input = document.getElementById("yabaInput");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const v = normalize(input.value);
+    if(!v) { ping("入力してください"); return; }
+    const tag = `#${v}`;
+    // prepend to both clouds
+    state.top = [tag, ...state.top.filter(t => t !== tag)];
+    state.bottom = [tag, ...state.bottom.filter(t => t !== tag)];
+    save();
+    render();
+    input.value = "";
+    ping("追加しました");
+  });
+
+  // snackbar
+  const snack = document.getElementById("snack");
+  let timer = null;
+  function ping(msg){
+    snack.firstElementChild.textContent = msg;
+    snack.classList.add("show");
+    clearTimeout(timer);
+    timer = setTimeout(() => snack.classList.remove("show"), 1500);
+  }
+
+  // kick
+  render();
+})();
+</script>
+</body>
+</html>
