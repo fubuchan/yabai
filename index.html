@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#e0ea00" />
 <style>
   :root{
-    --accent:#e0ea00; /* yellow-green band */
+    --accent:#e0ea00;
     --bg:#ffffff;
     --fg:#111;
     --chip-bg:#111;
@@ -25,43 +25,38 @@
   .frame{width:100%; max-width:var(--maxw); min-height:100svh; display:flex; flex-direction:column;}
 
   /* clouds */
-  .cloud,.footerCloud{padding:18px; display:flex; flex-wrap:wrap; gap:12px 12px}
+  .cloud,.footerCloud{padding:14px; display:flex; flex-wrap:wrap; gap:10px}
   .cloud{flex:0 0 auto}
-  .footerCloud{flex:1 1 auto; overflow:auto}
+  .footerCloud{flex:1 1 auto; overflow:auto; font-size:14px}
   .chip{
     background:var(--chip-bg); color:var(--chip-fg);
-    font-weight:700; font-size:18px; line-height:1;
-    padding:12px 14px; border-radius:999px;
-    box-shadow:0 1px 0 rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.06);
-    letter-spacing:.01em;
+    font-weight:600; font-size:14px; line-height:1;
+    padding:8px 10px; border-radius:999px;
   }
-  /* bottom chips even bigger */
-  .footerCloud .chip{font-size:20px; padding:14px 16px}
 
-  /* middle band — bigger & taller */
+  /* middle band */
   .band{
     background:var(--accent);
-    padding:28px 18px 18px;
-    flex:0 0 48svh;               /* ← 黄色い範囲を拡大（画面の約半分） */
+    padding:28px 18px;
+    flex:0 0 50svh; /* 黄色部分はそのまま半分程度 */
     display:flex; flex-direction:column; justify-content:center;
   }
   .headline{
     font-weight:900;
     font-size:clamp(22px,6vw,30px);
-    letter-spacing:.02em;
-    margin:0 0 20px;
+    margin:0 0 24px;
   }
 
   /* larger input row */
   .inputRow{
     display:flex; align-items:center; gap:10px;
     background:#fff; border-radius:20px;
-    padding:16px 16px; box-shadow:0 4px 14px rgba(0,0,0,.10);
+    padding:18px 18px; box-shadow:0 4px 14px rgba(0,0,0,.10);
   }
-  .hash{font-weight:900; font-size:28px}
+  .hash{font-weight:900; font-size:30px}
   input[type="text"]{
     border:none; outline:none; width:100%;
-    font-size:26px; letter-spacing:.02em;
+    font-size:28px; letter-spacing:.02em;
   }
   .btn{
     appearance:none; border:none; border-radius:14px;
@@ -82,7 +77,6 @@
 
     <section class="band" role="region" aria-label="投稿">
       <h1 class="headline">ヤバいなんて、もんじゃない。</h1>
-
       <form id="yabaForm" class="inputRow" autocomplete="off">
         <span class="hash">#</span>
         <input id="yabaInput" type="text" inputmode="text" maxlength="24" placeholder="＿＿＿＿＿＿＿＿" aria-label="ヤバ語を入力" />
@@ -129,7 +123,7 @@
     topCloud.innerHTML=""; topCloud.appendChild(ft);
 
     const fb = document.createDocumentFragment();
-    state.bottom.slice(0,60).forEach(t=>fb.appendChild(chip(t)));
+    state.bottom.slice(0,40).forEach(t=>fb.appendChild(chip(t)));
     bottomCloud.innerHTML=""; bottomCloud.appendChild(fb);
   };
 
